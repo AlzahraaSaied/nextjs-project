@@ -9,7 +9,6 @@ import Menu from '@mui/material/Menu';
 import MenuIcon from '@mui/icons-material/Menu';
 import Container from '@mui/material/Container';
 import Button from '@mui/material/Button';
-import Tooltip from '@mui/material/Tooltip';
 import MenuItem from '@mui/material/MenuItem';
 import AdbIcon from '@mui/icons-material/Adb';
 import Link from 'next/link'; 
@@ -24,7 +23,6 @@ const settings = ['Profile', 'Account', 'Dashboard', 'Logout'];
 
 function ResponsiveAppBar() {
   
-  const { allPosts, isLoading, isError } = useSelector((state) => state.posts);
   const [anchorElNav, setAnchorElNav] = React.useState<null | HTMLElement>(null);
   const [anchorElUser, setAnchorElUser] = React.useState<null | HTMLElement>(null);
 
@@ -141,7 +139,6 @@ function ResponsiveAppBar() {
           
 
           <Box sx={{ flexGrow: 0 }}>
-           
             <Menu
               sx={{ mt: '45px' }}
               id="menu-appbar"
