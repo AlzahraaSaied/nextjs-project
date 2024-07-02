@@ -10,16 +10,17 @@ export default function AddPost() {
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    
+
     const form = e.target as HTMLFormElement;
-    
+
     const body = form.body.value;
     const image = form.image.files[0];
-    
+
     const formData = new FormData();
     formData.append('body', body);
     formData.append('image', image);
-    
+
+    // Dispatch the action with the formData
     dispatch(addPost(formData));
   }
 

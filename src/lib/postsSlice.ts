@@ -17,7 +17,7 @@ export let getPosts = createAsyncThunk("postsSlice/getPosts", async () => {
 });
 export let addPost = createAsyncThunk(
   "postsSlice/addPost",
-  async (FormData) => {
+  async (formData: FormData) => {
     let response = await fetch(`https://linked-posts.routemisr.com/posts`, {
       body: FormData,
       method: "POST",
