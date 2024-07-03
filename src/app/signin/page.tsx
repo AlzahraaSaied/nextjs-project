@@ -19,17 +19,14 @@ export default function Signin() {
     try {
       await dispatch(signinUser({ email, password }));
       console.log("Sign in attempted");
+      if (user) {
+        router.push('/profile');
+      }
     } catch (error) {
       console.error('Signin error:', error);
     }
   };
-  
- /* useEffect(() => {
-    if (user) {
-      console.log('User signed in:', user);
-      router.push('/posts');
-    }
-  }, [user, router]);*/
+ 
 
   return (
     <Container maxWidth="sm">
