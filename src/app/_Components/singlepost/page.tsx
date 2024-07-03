@@ -73,6 +73,10 @@ export default function SinglePost({ postdetails }: SinglePostProps) {
   const currentUser = useSelector((state: RootState) => state.user.user);
   const [updatedPostImage, setUpdatedPostImage] = useState(postDetails.image);
 
+  // Add logging to verify values
+  console.log("currentUser:", currentUser);
+  console.log("postDetails:", postDetails);
+
   const handleAddComment = () => {
     dispatch(addComment({ postId: postDetails._id, body: newCommentBody })).then((action: any) => {
       if (action.meta.requestStatus === 'fulfilled') {
@@ -97,7 +101,7 @@ export default function SinglePost({ postdetails }: SinglePostProps) {
   };
 
   const handleUpdatePost = () => {
-    if (postDetails.user._id === currentUser.id) {
+    if (postDetails.user && postDetails.user._id !== currentUser?.id) {
       const updatedPost = { id: postDetails._id, body: updatedPostBody, image: updatedPostImage };
       dispatch(updatePost(updatedPost)).then((action: any) => {
         if (action.meta.requestStatus === 'fulfilled') {
@@ -210,7 +214,7 @@ export default function SinglePost({ postdetails }: SinglePostProps) {
         <IconButton aria-label="Delete Post" onClick={handleDeletePost}>
           <DeleteIcon />
         </IconButton>
-        {currentUser && postDetails.user._id === currentUser.id && (
+        {currentUser && postDetails.user && postDetails.user._id === currentUser.id && (
           <IconButton aria-label="Edit Post" onClick={() => setEditingPost(true)}>
             <EditIcon />
           </IconButton>
