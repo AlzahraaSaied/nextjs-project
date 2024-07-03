@@ -7,20 +7,20 @@ import CardContent from '@mui/material/CardContent';
 import CardActions from '@mui/material/CardActions';
 import Collapse from '@mui/material/Collapse';
 import Avatar from '@mui/material/Avatar';
-import IconButton from '@mui/material/IconButton';
+import IconButton, { IconButtonProps } from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
 import { red } from '@mui/material/colors';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import MoreVertIcon from '@mui/icons-material/MoreVert'; // Add this line for MoreVertIcon
+import MoreVertIcon from '@mui/icons-material/MoreVert';
 import Box from '@mui/material/Box';
-import { TextField } from '@mui/material';
-import { Button } from '@mui/material';
+import TextField from '@mui/material/TextField';
+import Button from '@mui/material/Button';
 import { useDispatch, useSelector } from 'react-redux';
 import { updatePost, deletePost, updateComment, deleteComment, addComment } from '@/lib/postsSlice';
-import { useState } from 'react';
-import { useEffect } from 'react';
+import { RootState } from '@/lib/store';
+import { useState, useEffect } from 'react'; // Correcting this line
 
 interface ExpandMoreProps extends IconButtonProps {
   expand: boolean;
@@ -37,48 +37,69 @@ const ExpandMore = styled((props: ExpandMoreProps) => {
   }),
 }));
 
-export default function SinglePost({ postdetails }: any) {
-  const dispatch = useDispatch();
+interface PostDetails {
+  _id: string;
+  body: string;
+  image: string;
+  user: {
+    _id: string;
+    photo: string;
+    name: string;
+  };
+  comments: Array<{
+    _id: string;
+    body: string;
+    commentCreator: {
+      photo: string;
+      name: string;
+    };
+  }>;
+  createdAt: string;
+}
+
+interface SinglePostProps {
+  postdetails: PostDetails;
+}
+
+export default function SinglePost({ postdetails }: SinglePostProps) {
+  const dispatch = useDispatch<any>();
   const [postDetails, setPostDetails] = useState(postdetails);
   const [expanded, setExpanded] = useState(false);
   const [editingPost, setEditingPost] = useState<boolean>(false);
   const [updatedPostBody, setUpdatedPostBody] = useState<string>(postdetails.body);
   const [editingComment, setEditingComment] = useState<string | null>(null);
   const [updatedCommentBody, setUpdatedCommentBody] = useState<string>('');
-  const [newCommentBody, setNewCommentBody] = useState<string>('');  
-  const currentUser = useSelector((state) => state.user.user);
-
+  const [newCommentBody, setNewCommentBody] = useState<string>('');
+  const currentUser = useSelector((state: RootState) => state.user.user);
   const [updatedPostImage, setUpdatedPostImage] = useState(postDetails.image);
-
 
   const handleAddComment = () => {
     dispatch(addComment({ postId: postDetails._id, body: newCommentBody })).then((action: any) => {
       if (action.meta.requestStatus === 'fulfilled') {
         setPostDetails({
           ...postDetails,
-          comments: [...postDetails.comments, action.payload], // Assuming action.payload is the new comment object
+          comments: [...postDetails.comments, action.payload],
         });
         setNewCommentBody('');
       }
     });
   };
 
-  const handleImageUpload = (event) => {
+  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files[0];
     if (file) {
       const reader = new FileReader();
       reader.onloadend = () => {
-        setUpdatedPostImage(reader.result);
+        setUpdatedPostImage(reader.result as string);
       };
       reader.readAsDataURL(file);
     }
   };
-  
-  
+
   const handleUpdatePost = () => {
     if (postDetails.user._id === currentUser.id) {
       const updatedPost = { id: postDetails._id, body: updatedPostBody, image: updatedPostImage };
-      dispatch(updatePost(updatedPost)).then((action) => {
+      dispatch(updatePost(updatedPost)).then((action: any) => {
         if (action.meta.requestStatus === 'fulfilled') {
           setPostDetails({ ...postDetails, body: updatedPostBody, image: updatedPostImage });
           setEditingPost(false);
@@ -148,7 +169,7 @@ export default function SinglePost({ postdetails }: any) {
         title={postdetails.user.name}
         subheader={postDetails.createdAt}
       />
-   {editingPost ? (
+      {editingPost ? (
         <>
           <TextField
             fullWidth
@@ -189,11 +210,11 @@ export default function SinglePost({ postdetails }: any) {
         <IconButton aria-label="Delete Post" onClick={handleDeletePost}>
           <DeleteIcon />
         </IconButton>
-        {currentUser && postDetails.userId === currentUser.id && (
-            <IconButton aria-label="Edit Post" onClick={() => setEditingPost(true)}>
-              <EditIcon />
-            </IconButton>
-          )}
+        {currentUser && postDetails.user._id === currentUser.id && (
+          <IconButton aria-label="Edit Post" onClick={() => setEditingPost(true)}>
+            <EditIcon />
+          </IconButton>
+        )}
         <ExpandMore
           expand={expanded}
           onClick={handleExpandClick}
@@ -205,17 +226,16 @@ export default function SinglePost({ postdetails }: any) {
       </CardActions>
       <Collapse in={expanded} timeout="auto" unmountOnExit>
         <CardContent>
-          {postDetails?.comments.map((comment: any) => (
+          {postDetails.comments.map((comment) => (
             <Box key={comment._id} className="comment">
               <Box sx={{ display: "flex", alignItems: "center" }}>
-                <Avatar src={comment?.commentCreator?.photo} sx={{ bgcolor: red[500], marginRight: 1 }} />
+                <Avatar src={comment.commentCreator?.photo} sx={{ bgcolor: red[500], marginRight: 1 }} />
                 <Typography variant="body2" color="text.secondary">
-                  {comment?.commentCreator?.name}
+                  {comment.commentCreator?.name}
                 </Typography>
                 <Typography paragraph sx={{ paddingTop: 10 }}>
-                {comment.content}
-              </Typography>
-
+                  {comment?.content}
+                </Typography>
               </Box>
               {editingComment === comment._id ? (
                 <TextField
